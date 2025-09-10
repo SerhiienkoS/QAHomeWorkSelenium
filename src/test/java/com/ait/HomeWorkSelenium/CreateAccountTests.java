@@ -1,55 +1,37 @@
 package com.ait.HomeWorkSelenium;
 
 import org.openqa.selenium.By;
-import org.testng.Assert;
 import org.testng.annotations.Test;
 
 public class CreateAccountTests extends TestBase {
 
-    @Test
+    @Test(enabled = true)
     public void newUserRegistrationPositiveTest() {
 
         int i = (int) ((System.currentTimeMillis() / 1000) % 3600);
 
-        //click on Register link
-        driver.findElement(By.cssSelector("a.ico-register")).click();
+        // open Register page
+        click(By.cssSelector("a.ico-register"));
 
-        //Enter First name:
-        driver.findElement(By.xpath("//input[@id='FirstName']")).click();
-        driver.findElement(By.xpath("//input[@id='FirstName']")).clear();
-        driver.findElement(By.xpath("//input[@id='FirstName']")).sendKeys("Sergey");
+        // fill form
+        type(By.id("FirstName"), "Sergey");
+        type(By.id("LastName"), "Tester" + i);
 
-        //Enter Last name:
-        driver.findElement(By.xpath("//input[@id='LastName']")).click();
-        driver.findElement(By.xpath("//input[@id='LastName']")).clear();
-        driver.findElement(By.xpath("//input[@id='LastName']")).sendKeys("Tester" + i);
-
-        //Enter Email:
-        String email = "Sergey" + 1 + "@gmail.com";
-        driver.findElement(By.id("Email")).click();
-        driver.findElement(By.id("Email")).clear();
-        driver.findElement(By.id("Email")).sendKeys(email);
-
-        //Enter Password:
+        String email = "Sergey" + i + "@gmail.com";
         String password = "Password123!";
-        driver.findElement(By.id("Password")).click();
-        driver.findElement(By.id("Password")).clear();
-        driver.findElement(By.id("Password")).sendKeys(password);
-        //Enter Confirm password:
-        driver.findElement(By.id("ConfirmPassword")).click();
-        driver.findElement(By.id("ConfirmPassword")).clear();
-        driver.findElement(By.id("ConfirmPassword")).sendKeys(password);
 
-        //click on Registration button
-        driver.findElement(By.id("register-button")).click();
+        type(By.id("Email"), email);
+        type(By.id("Password"), password);
+        type(By.id("ConfirmPassword"), password);
 
-        //check "Log out" (After successful registration, a “Log out” link appears.)
-        boolean loggedIn = driver.findElements(By.cssSelector(".header-links a[href='/logout']")).size() > 0;
-        if (loggedIn) {
-            System.out.println("Registration successful ✅ (Logout visible)");
-        } else {
-            System.out.println("Registration unsuccessful ❌");
-        }
+        // submit
+        click(By.id("register-button"));
+
+        // check: Logout visible
+        boolean loggedIn = isElementPresent(By.cssSelector(".header-links a[href='/logout']"));
+        System.out.println(loggedIn
+                ? "Registration successful ✅ (Logout visible)"
+                : "Registration unsuccessful ❌");
     }
 
     @Test
@@ -57,50 +39,74 @@ public class CreateAccountTests extends TestBase {
 
         int i = (int) ((System.currentTimeMillis() / 1000) % 3600);
 
-        driver.findElement(By.cssSelector("a.ico-login")).click();
+        click(By.cssSelector("a.ico-login"));
 
-        driver.findElement(By.id("Email")).click();
-        driver.findElement(By.id("Email")).clear();
-        driver.findElement(By.id("Email")).sendKeys("user" + i + "@example.com");
+        // enter fake creds
+        type(By.id("Email"), "user" + i + "@example.com");
+        type(By.id("Password"), "WrongPass123!");
 
-        driver.findElement(By.id("Password")).click();
-        driver.findElement(By.id("Password")).clear();
-        driver.findElement(By.id("Password")).sendKeys("WrongPass123!");
+        // submit
+        click(By.cssSelector("input.button-1.login-button"));
 
-        driver.findElement(By.cssSelector("input.button-1.login-button")).click();
+        // expect error
 
-        boolean hasError = driver.findElements(By.cssSelector(".message-error")).size() > 0;
-
-        if (hasError) {
-            System.out.println("Negative login behaves correctly ✅ (error message is displayed)");
-        } else {
-            System.out.println("Negative login did not trigger an error ❌ (no error message found)");
-        }
+        boolean hasError = isElementPresent(By.cssSelector(".message-error"));
+        System.out.println(hasError
+                ? "Negative login behaves correctly ✅ (error message is displayed)"
+                : "Negative login did not trigger an error ❌ (no error message found)");
     }
 
     @Test
     public void loginPositiveTest() {
-        String testEmail = "Sergey" + 1 + "@gmail.com";
-        driver.findElement(By.cssSelector("a.ico-login")).click();
+        String testEmail = "Sergey1@gmail.com";
+        String password = "Password123!";
 
-        driver.findElement(By.id("Email")).click();
-        driver.findElement(By.id("Email")).clear();
-        driver.findElement(By.id("Email")).sendKeys(testEmail);
+        click(By.cssSelector("a.ico-login"));
 
-        driver.findElement(By.id("Password")).click();
-        driver.findElement(By.id("Password")).clear();
-        driver.findElement(By.id("Password")).sendKeys("Password123!");
+        type(By.cssSelector("Email"), testEmail);
+        type(By.cssSelector("Password"), password);
 
-        driver.findElement(By.cssSelector("input.button-1.login-button")).click();
+        click(By.cssSelector("input.button-1.login-button"));
 
-        boolean loggedIn = driver.findElements(By.cssSelector(".header-links a[href='/logout']")).size() > 0;
-
-        if (loggedIn) {
-            System.out.println("Positive login successful ✅ (Logout link is visible)");
-        } else {
-            System.out.println("Positive login failed ❌ (Logout link is not visible)");
-        }
+        boolean loggedIn = isElementPresent(By.cssSelector(".header-links a[href='/logout']"));
+        System.out.println(loggedIn
+                ? "Positive login successful ✅ (Logout link is visible)"
+                : "Positive login failed ❌ (Logout link is not visible)");
     }
+    @Test
+    public void register_logout_login_positive_in_one_test() {
+        int i = (int)((System.currentTimeMillis()/1000)%3600);
+        String email = "Sergey" + i + "@gmail.com";
+        String password = "Password123!";
 
+        // 1) Register
+        click(By.cssSelector("a.ico-register"));
+        type(By.id("FirstName"), "Sergey");
+        type(By.id("LastName"),  "Tester" + i);
+        type(By.id("Email"),     email);
+        type(By.id("Password"), password);
+        type(By.id("ConfirmPassword"), password);
+        click(By.id("register-button"));
+
+        boolean registered = isElementPresent(By.cssSelector(".header-links a[href='/logout']"));
+        System.out.println(registered
+                ? "Registration successful ✅"
+                : "Registration failed ❌");
+        if (!registered) return; // stop if registration didn’t succeed
+
+        // 2) Logout
+        click(By.cssSelector(".header-links a[href='/logout']"));
+
+        // 3) Login with the SAME creds
+        click(By.cssSelector("a.ico-login"));
+        type(By.id("Email"), email);
+        type(By.id("Password"), password);
+        click(By.cssSelector("input.button-1.login-button"));
+
+        boolean loggedIn = isElementPresent(By.cssSelector(".header-links a[href='/logout']"));
+        System.out.println(loggedIn
+                ? "Positive login successful ✅ (Logout link is visible)"
+                : "Positive login failed ❌ (Logout link is not visible)");
+    }
 }
 
