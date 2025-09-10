@@ -7,6 +7,8 @@ import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
+import java.time.Duration;
+
 public class FirstSeleniumTest {
 WebDriver driver;
     //before - setUP
@@ -14,6 +16,8 @@ WebDriver driver;
     public void setUp(){
         driver = new ChromeDriver();
         driver.get("https://www.google.com"); // without history ( Incognito)
+        driver.manage().window().maximize();
+        driver.manage().timeouts().implicitlyWait(Duration.ofSeconds(10));
     }
     //test
     @Test
@@ -134,7 +138,7 @@ WebDriver driver;
     //after - tearDown
     @AfterMethod(enabled = true)
     public void tearDown() {
-//        driver.quit(); // all tabs and browser (он закрывает все вкладки и браузер)
-        driver.close(); // only ona tab (if only one -> close browser) текущая
+        driver.quit(); // all tabs and browser (он закрывает все вкладки и браузер)
+//      driver.close(); // only ona tab (if only one -> close browser) текущая
     }
 }
